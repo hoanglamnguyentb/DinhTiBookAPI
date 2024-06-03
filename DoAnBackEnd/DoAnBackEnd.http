@@ -1,0 +1,6 @@
+@DoAnBackEnd_HostAddress = http://localhost:5204
+
+GET {{DoAnBackEnd_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

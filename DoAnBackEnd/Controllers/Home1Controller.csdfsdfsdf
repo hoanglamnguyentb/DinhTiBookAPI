@@ -1,0 +1,44 @@
+﻿using DoAn.Service.DanhMucService;
+using DoAn.Service.DanhMucTinTucService;
+using DoAn.Service.NhaXuatBanService;
+using DoAn.Service.SanPhamService;
+using DoAn.Service.TinTucService;
+using Microsoft.AspNetCore.Mvc;
+using Slugify;
+
+namespace DoAnBackEnd.Controllers
+{
+    //[Route("api/[controller]")]
+    //[ApiController]
+    //public class Home1Controller : ControllerBase
+    //{
+    //    private readonly ITinTucService _tinTucService;
+    //    private readonly ISanPhamService _sanPhamService;
+    //    private readonly INhaXuatBanService _nhaXuatBanService;
+    //    private readonly IDanhMucTinTucService _danhMucTinTucService;
+    //    private readonly IDanhMucService _danhMucService;
+
+    //    public Home1Controller(ITinTucService tinTucService, ISanPhamService sanPhamService, INhaXuatBanService nhaXuatBanService, IDanhMucTinTucService danhMucTinTucService, IDanhMucService danhMucService)
+    //    {
+    //        _tinTucService = tinTucService;
+    //        _sanPhamService = sanPhamService;
+    //        _nhaXuatBanService = nhaXuatBanService;
+    //        _danhMucTinTucService = danhMucTinTucService;
+    //        _danhMucService = danhMucService;
+    //    }
+
+    //    public IActionResult Index()
+    //    {
+    //        SlugHelper helper = new SlugHelper();
+    //        String title = "OLA ke ase!";
+    //        String slug = helper.GenerateSlug(title);
+    //        Console.WriteLine(slug); // "ola-ke-ase"
+    //        var tintuc = _tinTucService.GetQueryable().ToList();
+    //        foreach (var item in tintuc)
+    //        {
+    //            item.Slug = helper.GenerateSlug(item.TieuDe);   
+    //        }
+    //        return Ok("Thanh cong");
+    //    }
+    //}
+}
