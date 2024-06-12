@@ -10,6 +10,7 @@ using DoAn.Service.FileManagerService;
 using DoAn.Domain.Entities;
 using DoAnBackEnd.Model.TTSlideVM;
 using DoAn.Domain.Migrations;
+using DoAn.Service.QLSlideService;
 
 
 namespace DoAnBackEnd.Controllers
@@ -20,11 +21,13 @@ namespace DoAnBackEnd.Controllers
     {
         private readonly ITTSlideService _tTSlideService;
         private readonly IFileManagerService _fileManagerService;
+        private readonly IQLSlideService _qLSlideService;
 
-        public TTSlideController(ITTSlideService tTSlideService, IFileManagerService fileManagerService) 
+        public TTSlideController(ITTSlideService tTSlideService, IFileManagerService fileManagerService, IQLSlideService qLSlideService) 
         {
             _tTSlideService = tTSlideService;
             _fileManagerService = fileManagerService;
+            _qLSlideService = qLSlideService;
         }
         [HttpGet]
         public async Task<IActionResult> GetDataByPage([FromQuery] TTSlideSearchDto search)
@@ -35,14 +38,20 @@ namespace DoAnBackEnd.Controllers
                 if (TTSlide.Data.Items != null)
                 {
                     var Data = TTSlide.Data.Items;
-                    
 
-                    foreach (var data in Data)
+                    if (Data.Count > 0)
                     {
-                        var hinhAnh = _fileManagerService.GetFileById(data.Id).FirstOrDefault().Path;
+                        foreach (var data in Data)
+                        {
+                            var hinhAnh = _fileManagerService.GetFileById(data.Id).FirstOrDefault().Path;
+                            if (hinhAnh != null)
+                            {
+                                var anhDaiDien = hinhAnh;
+                                data.pathAnh = hinhAnh;
+                            }
 
-                        /*var anhDaiDien = hinhAnh.FirstOrDefault()?.Path;*/
-                        data.pathAnh = hinhAnh;
+                        }
+
                     }
 
                     string jsonData = JsonConvert.SerializeObject(TTSlide.Data.Items);

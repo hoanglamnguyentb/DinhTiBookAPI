@@ -11,6 +11,6 @@ namespace DoAn.Service.Common
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public string? fieldName { get; set; }
-        public string? typeOrder { get; set; }
+
     }
 }

@@ -2,7 +2,7 @@
 using DoAn.Repository.Core;
 
 using DoAn.Repository.OrderDetailRepository;
-
+using DoAn.Repository.SanPhamRepository;
 using DoAn.Service.Common;
 using DoAn.Service.Constants;
 using DoAn.Service.Core;
@@ -21,10 +21,12 @@ namespace DoAn.Service.OrderDetailService
     public class OrderDetailService : Service<OrderDetail>, IOrderDetailService
     {
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly ISanPhamRepository _sanPhamRepository;
 
-        public OrderDetailService(IOrderDetailRepository orderDetailRepository) : base(orderDetailRepository)
+        public OrderDetailService(IOrderDetailRepository orderDetailRepository, ISanPhamRepository sanPhamRepository) : base(orderDetailRepository)
         {
             _orderDetailRepository = orderDetailRepository;
+            _sanPhamRepository = sanPhamRepository;
         }
 
         public ResponseWithDataDto<OrderDetail> Add(OrderDetailDto orderDetail)
@@ -181,6 +183,58 @@ namespace DoAn.Service.OrderDetailService
         public ResponseWithMessageDto Update(Guid id, OrderDetailDto order)
         {
             throw new NotImplementedException();
+        }
+
+        public ResponseWithDataDto<List<OrderDetailDto>> GetByOrderId(Guid id)
+        {
+            try
+            {
+                var data = from tblOrder in _orderDetailRepository.GetQueryable()
+                           where tblOrder.OrderId == id
+                join tblSanPham in _sanPhamRepository.GetQueryable()
+                           on tblOrder.IdSanPham equals tblSanPham.Id
+                           select new OrderDetailDto
+                           {
+                               Id = tblOrder.Id,
+                               OrderId = tblOrder.OrderId,
+                               IdSanPham = tblOrder.IdSanPham,
+                               GiaTien = tblOrder.GiaTien,
+                               SoLuong = tblOrder.SoLuong,
+                               CreatedBy = tblOrder.CreatedBy,
+                               CreatedDate = tblOrder.CreatedDate,
+                               CreatedID = tblOrder.CreatedID,
+                               UpdatedBy = tblOrder.UpdatedBy,
+                               UpdatedDate = tblOrder.UpdatedDate,
+                               UpdatedID = tblOrder.UpdatedID,
+                               IsDelete = tblOrder.IsDelete,
+                               DeleteTime = tblOrder.DeleteTime,
+                               DeleteBy = tblOrder.DeleteBy,
+                               DeleteId = tblOrder.DeleteId,
+                               TenSach = tblSanPham.TenSach,
+                           };
+                /* return new ResponseWithDataDto<List<OrderDetailDto>>()
+                 {
+                     Data = data,
+                     Status = StatusConstant.SUCCESS,
+                     Message = "Lấy thành công"
+                 };*/
+                var result = data.ToList();
+                return new ResponseWithDataDto<List<OrderDetailDto>>()
+                {
+                    Data = result,
+                    Status = StatusConstant.SUCCESS,
+                    Message = "Lấy thành công"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseWithDataDto<List<OrderDetailDto>>()
+                {
+                    Data = null,
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

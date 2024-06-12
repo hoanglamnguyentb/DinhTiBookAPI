@@ -1,4 +1,5 @@
 ﻿using DoAn.Domain.Entities;
+using DoAn.Service.Dtos.SanPhamDto;
 using System.ComponentModel.DataAnnotations;
 
 namespace DoAnBackEnd.Model.SanPhamVM

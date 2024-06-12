@@ -161,13 +161,25 @@ namespace DoAn.Service.OrderService
                                 DeleteId = tblOrder.DeleteId,
                             };
 
-                /*if (searchDto != null)
+                if (searchDto != null)
                 {
                     if (searchDto.IdUserFilter != null)
                     {
-                        query = query.Where(m => m.IdUser == searchDto.IdUserFilter);
+                        query = query.Where(m => m.IdUser.ToString() == searchDto.IdUserFilter);
                     }
-                }*/
+                    if (searchDto.TrangThaiFilter != 0)
+                    {
+                        query = query.Where(m => m.TrangThaiDonHang == searchDto.TrangThaiFilter);
+                    }
+                    if (searchDto.TenKhachHangFilter != null)
+                    {
+                        query = query.Where(m => m.TenKhachHang.Trim().Contains(searchDto.TenKhachHangFilter));
+                    }
+                    if(searchDto.SoDienThoaiFilter != null)
+                    {
+                        query = query.Where(m => m.SoDienThoai == searchDto.SoDienThoaiFilter);
+                    }
+                }
                 var result = PagedList<OrderDto>.Create(query, searchDto);
                 return new ResponseWithDataDto<PagedList<OrderDto>>()
                 {
@@ -179,6 +191,57 @@ namespace DoAn.Service.OrderService
             catch (Exception ex)
             {
                 return new ResponseWithDataDto<PagedList<OrderDto>>()
+                {
+                    Data = null,
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public ResponseWithDataDto<List<OrderDto>> GetDataByUserId(Guid id)
+        {
+            try
+            {
+                var query = from tblOrder in _orderRepository.GetQueryable()
+                            where tblOrder.IdUser == id
+      
+                            select new OrderDto
+                            {
+                                Id = tblOrder.Id,
+                                IdUser = tblOrder.IdUser,
+                                TenKhachHang = tblOrder.TenKhachHang,
+                                NgayDatHang = tblOrder.NgayDatHang,
+                                SoDienThoai = tblOrder.SoDienThoai,
+                                DiaChi = tblOrder.DiaChi,
+                                Tinh = tblOrder.Tinh,
+                                Huyen = tblOrder.Huyen,
+                                Xa = tblOrder.Xa,
+                                TrangThaiDonHang = tblOrder.TrangThaiDonHang,
+                                CreatedBy = tblOrder.CreatedBy,
+                                CreatedDate = tblOrder.CreatedDate,
+                                CreatedID = tblOrder.CreatedID,
+                                UpdatedBy = tblOrder.UpdatedBy,
+                                UpdatedDate = tblOrder.UpdatedDate,
+                                UpdatedID = tblOrder.UpdatedID,
+                                IsDelete = tblOrder.IsDelete,
+                                DeleteTime = tblOrder.DeleteTime,
+                                DeleteBy = tblOrder.DeleteBy,
+                                DeleteId = tblOrder.DeleteId,
+                            };
+
+
+            
+                return new ResponseWithDataDto<List<OrderDto>>()
+                {
+                    Data = query.ToList(),
+                    Status = StatusConstant.SUCCESS,
+                    Message = "Lấy thành công"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseWithDataDto<List<OrderDto>>()
                 {
                     Data = null,
                     Status = StatusConstant.ERROR,

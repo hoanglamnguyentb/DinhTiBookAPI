@@ -1,16 +1,20 @@
 ﻿using DoAn.Domain.Entities;
 using DoAn.Service.AppRoleService;
 using DoAn.Service.AppUserRoleService;
+using DoAn.Service.AppUserService;
 using DoAn.Service.Constants;
 using DoAn.Service.Dtos;
 using DoAn.Service.Dtos.UserDto;
+using DoAnBackEnd.Model.UserVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Dynamic.Core.Tokenizer;
 using System.Security.Claims;
 using System.Text;
 
@@ -25,14 +29,15 @@ namespace DoAnBackEnd.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAppUserRoleService _appUserRoleService;
         private readonly IAppRoleService _appRoleService;
+        private readonly IAppUserService _appUserService;
 
         public UserController(
             UserManager<AppUser> userManager,
             RoleManager<AppRole> roleManager,
             IConfiguration configuration,
             IAppRoleService appRoleService,
-            IAppUserRoleService appUserRoleService
-            
+            IAppUserRoleService appUserRoleService,
+            IAppUserService appUserService
            
         ) 
         {
@@ -41,7 +46,7 @@ namespace DoAnBackEnd.Controllers
             _configuration = configuration;
             _appUserRoleService = appUserRoleService;
             _appRoleService = appRoleService;
-
+            _appUserService = appUserService;
 
         }
 
@@ -124,14 +129,14 @@ namespace DoAnBackEnd.Controllers
             if (userExists != null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ResponseWithMessageDto { Status = "Error", Message = "Tài khoản đã tồn tại." });
+                    new ResponseWithMessageDto { Status = "Error", Message = "Tài khoản đã tồn tại.", Code= 1 });
             }
 
             var emailExists = await _userManager.FindByEmailAsync(register.Email);
             if (emailExists != null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ResponseWithMessageDto { Status = "Error", Message = "Email đã tồn tại." });
+                    new ResponseWithMessageDto { Status = "Error", Message = "Email đã tồn tại.", Code = 2 });
             }
 
             AppUser user = new AppUser()
@@ -199,6 +204,110 @@ namespace DoAnBackEnd.Controllers
         {
             // If the request reaches this point, it means the token is valid
             return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetUserById(Guid id)
+        {
+
+            try
+            {
+                var rs = _appUserService.GetByIdAndRole(id);
+                return rs.Status == StatusConstant.SUCCESS ? StatusCode(StatusCodes.Status200OK, rs) : StatusCode(StatusCodes.Status500InternalServerError, rs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+                {
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                });
+
+            }
+        }
+
+        [HttpPost]
+        [Route("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] DoiMatKhauVM model)
+        {
+            // Kiểm tra model
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Lấy user từ database
+                var user = await _userManager.FindByIdAsync(model.UserId);
+
+                // Kiểm tra user có tồn tại không
+                if (user == null)
+                {
+                    return NotFound("User không tồn tại");
+                }
+
+                // Kiểm tra mật khẩu cũ có khớp với mật khẩu trong cơ sở dữ liệu không
+                var passwordMatched = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+
+                if (!passwordMatched)
+                {
+                    // Nếu mật khẩu không khớp, xử lý tùy ý, ví dụ như trả về một phản hồi BadRequest
+                    return BadRequest("Mật khẩu cũ không đúng.");
+                }
+                else
+                {
+                    // Update mật khẩu
+                    var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    if (!result.Succeeded)
+                    {
+                        return BadRequest(result.Errors);
+                    }
+                    return Ok(new { status = "Success", message = "Mật khẩu đã được thay đổi thành công" });
+                }
+
+
+                
+            }
+            catch (Exception ex)
+            {
+                // Xử lý các lỗi khác
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPut]
+        [Route("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfile(UpdateVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Cập nhật thông tin người dùng
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+            user.FullName = model.FullName;
+
+            // Gọi phương thức UpdateAsync để cập nhật thông tin
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok("Cập nhật thành công");
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
         }
     }
 }

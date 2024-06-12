@@ -12,6 +12,7 @@ using DoAn.Domain.Entities;
 using DoAn.Service.OrderDetailService;
 using DoAn.Service.Dtos.OrderDetailDto;
 using DoAnBackEnd.Model.OrderDetailVM;
+using DoAn.Service.SanPhamService;
 
 namespace DoAnBackEnd.Controllers
 {
@@ -20,10 +21,12 @@ namespace DoAnBackEnd.Controllers
     public class OrderDetailController : ControllerBase
     {
         private readonly IOrderDetailService _orderDetailService;
+        private readonly ISanPhamService _sanPhamService;
 
-        public OrderDetailController(IOrderDetailService orderDetailService) 
+        public OrderDetailController(IOrderDetailService orderDetailService, ISanPhamService sanPhamService) 
         {
             _orderDetailService = orderDetailService;
+            _sanPhamService = sanPhamService;
         }
 
         [HttpGet]
@@ -50,6 +53,7 @@ namespace DoAnBackEnd.Controllers
         {
             try
             {
+                _sanPhamService.TruSoLuongDaMua(order.IdSanPham, order.SoLuong);
                 var d = new OrderDetail()
                 {
 
@@ -178,6 +182,25 @@ namespace DoAnBackEnd.Controllers
                     Status = StatusConstant.ERROR,
                     Message = ex.Message
                 });
+            }
+        }
+
+        [HttpGet("GetByOrderId/{id}")]
+        public async Task<IActionResult> GetByOrderId(Guid id)
+        {
+            try
+            {
+                var rs = _orderDetailService.GetByOrderId(id);
+                return rs.Status == StatusConstant.SUCCESS ? StatusCode(StatusCodes.Status200OK, rs) : StatusCode(StatusCodes.Status500InternalServerError, rs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+                {
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                });
+
             }
         }
     }

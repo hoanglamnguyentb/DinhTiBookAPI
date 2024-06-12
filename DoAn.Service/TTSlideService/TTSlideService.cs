@@ -161,6 +161,10 @@ namespace DoAn.Service.TTSlideService
                     {
                         var TenSearch = searchDto.TenFilter.RemoveAccentsUnicode();
                     }
+                    if (searchDto.TypeFilter != null)
+                    {
+                        query = query.Where(record => record.Type.Trim().ToLower().Contains(searchDto.TypeFilter.Trim().ToLower()));
+                    }
                 }
                 var result = PagedList<TTSlideDto>.Create(query, searchDto);
                 return new ResponseWithDataDto<PagedList<TTSlideDto>>()

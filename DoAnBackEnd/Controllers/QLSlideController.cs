@@ -27,7 +27,7 @@ namespace DoAnBackEnd.Controllers
         }
 
         [HttpGet("get")]
-        [Authorize]
+
         public async Task<IActionResult> GetFile()
         {
             try
@@ -84,7 +84,7 @@ namespace DoAnBackEnd.Controllers
         /// <param name="parentid"></param>
         /// <returns></returns>
         [HttpGet("getbyParentID")]
-        [Authorize]
+
         public async Task<IActionResult> GetFileByParaent([FromQuery] Guid parentid)
         {
             try
@@ -101,7 +101,7 @@ namespace DoAnBackEnd.Controllers
 
         [HttpPost("Upload")]
 /*        [Authorize]*/
-        public async Task<IActionResult> UploadsFile([FromForm] UploadVM file, [FromQuery] Guid? ParentID,  string? Type)
+        public async Task<IActionResult> UploadsFile([FromForm] UploadVM file, [FromQuery] Guid? ParentID,  string? Type, string? TenBanner)
         {
             try
             {
@@ -157,9 +157,15 @@ namespace DoAnBackEnd.Controllers
                             Name = uniqueFileName,
                             Path = shortPath,
                             Mine = item.ContentType,
-                            Type = Type
+                            Type = Type,
+                            TenBanner = TenBanner 
                         };
                         await _qlSlideService.Create(fileNew);
+                        // Lưu tệp vào thư mục
+                        using (var stream = new FileStream(Path.Combine(folderPath, uniqueFileName), FileMode.Create))
+                        {
+                            await item.CopyToAsync(stream);
+                        }
                         return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto { Status = StatusConstant.SUCCESS, Message = "Tải tập tin thành công" });
                     }
                     return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = "Tải lên tập tin không thành công" });
@@ -265,8 +271,8 @@ namespace DoAnBackEnd.Controllers
         /// <param name="IDItem"></param>
         /// <returns></returns>
 		[HttpDelete("delete")]
-        [Authorize]
-        public async Task<IActionResult> DeleteFile([FromBody] Guid IDItem)
+
+        public async Task<IActionResult> DeleteFile(Guid IDItem)
         {
             try
             {
@@ -277,7 +283,11 @@ namespace DoAnBackEnd.Controllers
                 }
                 else
                 {
-                    //await _fileFolderAndService.Delete(fileorFolder);
+                    foreach (var item in fileorFolder)
+                    {
+                        await _qlSlideService.Delete(item);
+                    }
+                    //await _fileManagerService.Delete(fileorFolder);
                     return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto { Status = StatusConstant.SUCCESS, Message = "Xóa file Hoặc folder thành công" });
                 }
             }

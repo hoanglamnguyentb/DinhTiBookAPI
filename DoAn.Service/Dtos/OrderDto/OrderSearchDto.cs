@@ -9,6 +9,9 @@ namespace DoAn.Service.Dtos.OrderDto
 {
     public class OrderSearchDto : SearchBase
     {
-        public Guid IdUserFilter { get; set; }
+        public string? IdUserFilter { get; set; }
+        public int TrangThaiFilter { get; set; }
+        public string? TenKhachHangFilter { get; set; }
+        public string? SoDienThoaiFilter { get; set; }
     }
 }

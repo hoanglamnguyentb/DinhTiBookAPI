@@ -9,5 +9,6 @@
         public string? HinhAnh { get; set; }
         public bool isNoiBat { get; set; }  
         public int LuotXem { get; set; }
+        public string? Type { get; set; }
     }
 }

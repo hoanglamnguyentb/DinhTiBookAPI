@@ -66,6 +66,7 @@ namespace DoAn.Service.QLSlideService
                             Mine = q.Mine,
                             Path = q.Path,
                             Type = q.Type,
+                            TenBanner = q.TenBanner,
                             
                         };
             return await query.ToListAsync();
@@ -84,6 +85,7 @@ namespace DoAn.Service.QLSlideService
                             Mine = QLSlidebtl.Mine,
                             Path = QLSlidebtl.Path,
                             Type = QLSlidebtl.Type,
+                            TenBanner = QLSlidebtl.TenBanner,   
                         };
             return query.ToList();
         }
@@ -110,6 +112,7 @@ namespace DoAn.Service.QLSlideService
                             Mine = q.Mine,
                             Path = q.Path,
                             Type = q.Type,
+                            TenBanner = q.TenBanner,
                         };
             return await query.ToListAsync();
         }

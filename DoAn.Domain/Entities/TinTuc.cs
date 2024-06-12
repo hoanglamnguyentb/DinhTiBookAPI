@@ -19,5 +19,6 @@ namespace DoAn.Domain.Entities
         public bool isNoiBat { get; set; }
         public int LuotXem { get; set; }
         public string? Slug { get; set; }
+        public string? Type { get; set; }
     }
 }

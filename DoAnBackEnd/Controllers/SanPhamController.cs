@@ -10,6 +10,8 @@ using DoAn.Domain.Entities;
 
 using DoAnBackEnd.Model.SanPhamVM;
 using DoAn.Service.FileManagerService;
+using Slugify;
+using System.Linq;
 
 namespace DoAnBackEnd.Controllers
 {
@@ -53,6 +55,70 @@ namespace DoAnBackEnd.Controllers
             }
         }
 
+        [HttpGet("Top5")]
+        public async Task<IActionResult> GetDataTop5([FromQuery] SanPhamSearchDto search)
+        {
+            try
+            {
+                // Lấy dữ liệu sản phẩm với phân trang và sắp xếp
+                var sanpham = _sanPhamService.GetDataByPage(search);
+
+                // Kiểm tra nếu có dữ liệu
+                if (sanpham.Data.Items != null)
+                {
+                    // Sắp xếp theo số lượng bán giảm dần và lấy top 5
+                    var top5SanPham = sanpham.Data.Items
+                                                .OrderByDescending(p => p.SoLuongDaBan)
+                                                .Take(5)
+                                                .ToList();
+                    // Lưu dữ liệu vào session
+                    string jsonData = JsonConvert.SerializeObject(top5SanPham);
+                    HttpContext.Session.SetString("searchData" + typeof(SanPhamDto).Name, jsonData);
+
+                    // Trả về kết quả
+                    return Ok(top5SanPham);
+                }
+
+                return NotFound(new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = "No products found" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = ex.Message });
+            }
+        }
+
+        [HttpGet("HetHang")]
+        public async Task<IActionResult> GetDataHetHang([FromQuery] SanPhamSearchDto search)
+        {
+            try
+            {
+                // Lấy dữ liệu sản phẩm với phân trang và sắp xếp
+                var sanpham = _sanPhamService.GetDataByPage(search);
+
+                // Kiểm tra nếu có dữ liệu
+                if (sanpham.Data.Items != null)
+                {
+                    // Sắp xếp theo số lượng bán giảm dần và lấy top 5
+                    var top5SanPham = sanpham.Data.Items
+                                                .Where( m => m.SoLuongTon <=10)
+                                                .OrderByDescending(p => p.SoLuongTon)         
+                                                .ToList();
+                    // Lưu dữ liệu vào session
+                    string jsonData = JsonConvert.SerializeObject(top5SanPham);
+                    HttpContext.Session.SetString("searchData" + typeof(SanPhamDto).Name, jsonData);
+
+                    // Trả về kết quả
+                    return Ok(top5SanPham);
+                }
+
+                return NotFound(new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = "No products found" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = ex.Message });
+            }
+        }
+
 
         [HttpPost("Filter")]
         public async Task<IActionResult> GetDataByPage([FromBody] SanPhamSearchFilterDto search)
@@ -84,6 +150,8 @@ namespace DoAnBackEnd.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] ActionVM sanpham)
         {
+            SlugHelper helper = new SlugHelper();
+
             try
             {
                 var d = new SanPham()
@@ -101,7 +169,9 @@ namespace DoAnBackEnd.Controllers
                     GiamGia = sanpham.GiamGia,
                     SachKhuyenDoc = sanpham.SachKhuyenDoc,
                     LuotXem = sanpham.LuotXem,
+                    SoLuongDaBan = sanpham.SoLuongDaBan,
                 };
+                d.Slug = helper.GenerateSlug(d.TenSach)+Guid.NewGuid().ToString();
                 await _sanPhamService.Create(d);
                 return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<SanPham>()
                 {
@@ -125,8 +195,9 @@ namespace DoAnBackEnd.Controllers
                 /*var rs = _sanPhamService.FindById(id);*/
 
                 var model = new DetailVM();
-                model.objInfo = _sanPhamService
-                    .FindBy(x => x.Slug == id).FirstOrDefault();
+               /* model.objInfo = _sanPhamService
+                    .FindBy(x => x.Slug == id).FirstOrDefault();*/
+               model.objInfo = _sanPhamService.FindBySlug(id);
                 if(model.objInfo != null)
                 {
                     model.AnhSanPham = _fileManagerService.GetFileById(model.objInfo.Id);
@@ -147,38 +218,40 @@ namespace DoAnBackEnd.Controllers
             }
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> FindById(Guid id)
-        //{
-        //    try
-        //    {
-        //        /*var rs = _sanPhamService.FindById(id);*/
+        [HttpGet("GetById/{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            try
+            {
+                var rs = _sanPhamService.FindById(id);
 
-        //        var model = new DetailVM();
-        //        model.objInfo = _sanPhamService.GetById(id);
-        //        if (model.objInfo != null)
-        //        {
-        //            model.AnhSanPham = _fileManagerService.GetFileById(id);
+                var model = new DetailVM();
+                model.objInfo = _sanPhamService.GetById(id);
+                if (model.objInfo != null)
+                {
+                    model.AnhSanPham = _fileManagerService.GetFileById(id);
 
-        //        }
+                }
 
-        //        //return mo.Status == StatusConstant.SUCCESS ? StatusCode(StatusCodes.Status200OK, rs) : StatusCode(StatusCodes.Status500InternalServerError, rs);
-        //        return Ok(model);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
-        //        {
-        //            Status = StatusConstant.ERROR,
-        //            Message = ex.Message
-        //        });
+                //return mo.Status == StatusConstant.SUCCESS ? StatusCode(StatusCodes.Status200OK, rs) : StatusCode(StatusCodes.Status500InternalServerError, rs);
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+                {
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                });
 
-        //    }
-        //}
+            }
+        }
 
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> Edit(Guid id, [FromBody] ActionVM action)
         {
+            SlugHelper helper = new SlugHelper();
+
             if (ModelState.IsValid)
             {
                 try
@@ -199,6 +272,9 @@ namespace DoAnBackEnd.Controllers
                         rs.GiamGia = action.GiamGia;
                         rs.SachKhuyenDoc = action.SachKhuyenDoc;
                         rs.LuotXem = action.LuotXem;
+                        
+                        rs.Slug = helper.GenerateSlug(rs.TenSach) + Guid.NewGuid().ToString();
+
                         await _sanPhamService.Update(rs);
                         return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<SanPham>
                         {

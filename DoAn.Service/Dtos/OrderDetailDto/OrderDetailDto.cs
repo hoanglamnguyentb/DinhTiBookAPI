@@ -9,5 +9,6 @@ namespace DoAn.Service.Dtos.OrderDetailDto
 {
     public class OrderDetailDto : OrderDetail
     {
+        public string? TenSach { get; set; }
     }
 }

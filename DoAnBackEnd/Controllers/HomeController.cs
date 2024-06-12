@@ -39,35 +39,35 @@ namespace DoAnBackEnd.Controllers
         {
             SlugHelper helper = new SlugHelper();
             var tintuc = _tinTucService.GetQueryable().ToList();
-            //foreach (var item in tintuc)
-            //{
-            //    item.Slug = helper.GenerateSlug(item.TieuDe);
-            //    _tinTucService.Update(item);
-            //}
+            foreach (var item in tintuc)
+            {
+                item.Slug = helper.GenerateSlug(item.TieuDe);
+                _tinTucService.Update(item);
+            }
             var sanpham = _sanPhamService.GetQueryable().ToList();
             foreach (var item in sanpham)
             {
                 item.Slug = helper.GenerateSlug(item.TenSach);
                 _sanPhamService.Update(item);
             }
-            //var nhaxuatban = _nhaXuatBanService.GetQueryable().ToList();
-            //foreach (var item in nhaxuatban)
-            //{
-            //    item.Slug = helper.GenerateSlug(item.TenNXB);
-            //    _nhaXuatBanService.Update(item);
-            //}
-            //var danhmuctin = _danhMucService.GetQueryable().ToList();
-            //foreach (var item in danhmuctin)
-            //{
-            //    item.Slug = helper.GenerateSlug(item.CategoryName);
-            //    _danhMucService.Update(item);
-            //}
-            //var danhmuctinTuc = _danhMucTinTucService.GetQueryable().ToList();
-            //foreach (var item in danhmuctinTuc)
-            //{
-            //    item.Slug = helper.GenerateSlug(item.TenDanhMuc);
-            //    _danhMucTinTucService.Update(item);
-            //}
+            var nhaxuatban = _nhaXuatBanService.GetQueryable().ToList();
+            foreach (var item in nhaxuatban)
+            {
+                item.Slug = helper.GenerateSlug(item.TenNXB);
+                _nhaXuatBanService.Update(item);
+            }
+            var danhmuctin = _danhMucService.GetQueryable().ToList();
+            foreach (var item in danhmuctin)
+            {
+                item.Slug = helper.GenerateSlug(item.CategoryName);
+                _danhMucService.Update(item);
+            }
+            var danhmuctinTuc = _danhMucTinTucService.GetQueryable().ToList();
+            foreach (var item in danhmuctinTuc)
+            {
+                item.Slug = helper.GenerateSlug(item.TenDanhMuc);
+                _danhMucTinTucService.Update(item);
+            }
             return Ok("Thanh cong");
         }
     }

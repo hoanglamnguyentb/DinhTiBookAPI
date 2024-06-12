@@ -20,5 +20,7 @@ namespace DoAn.Service.SanPhamService
         ResponseWithDataDto<SanPhamDto> FindById(Guid id);
         SanPham GetById(Guid id);
         ResponseWithDataDto<PagedList<SanPhamDto>> GetDataByPageWithFilter(SanPhamSearchFilterDto searchDto);
+        ResponseWithMessageDto TruSoLuongDaMua(Guid id, int SoLuong);
+        SanPham FindBySlug(string Slug);
     }
 }

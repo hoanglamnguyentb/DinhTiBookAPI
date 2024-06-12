@@ -11,5 +11,6 @@ namespace DoAn.Service.Dtos.TinTucDto
     {
         public string? TieuDeFilter { get; set; }
         public string? DanhMucFilter { get; set; }
+        public string? TypeFilter { get; set; } 
     }
 }

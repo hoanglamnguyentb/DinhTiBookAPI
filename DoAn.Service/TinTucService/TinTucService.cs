@@ -76,6 +76,7 @@ namespace DoAn.Service.TinTucService
                                HinhAnh = tblTinTuc.HinhAnh,
                                isNoiBat = tblTinTuc.isNoiBat,
                                LuotXem = tblTinTuc.LuotXem,
+                               Type = tblTinTuc.Type,   
                                
                            };
                 return new ResponseWithDataDto<TinTucDto>()
@@ -100,7 +101,7 @@ namespace DoAn.Service.TinTucService
         {
             try
             {
-                var query = from tblTinTuc in _tinTucRepository.GetQueryable()
+                var query = from tblTinTuc in _tinTucRepository.GetQueryable().OrderByDescending(m => m.CreatedDate)
                             select new TinTucDto
                             {
                                 Id = tblTinTuc.Id,
@@ -112,6 +113,7 @@ namespace DoAn.Service.TinTucService
                                 isNoiBat = tblTinTuc.isNoiBat,
                                 NgayTao = tblTinTuc.CreatedDate,
                                 LuotXem = tblTinTuc.LuotXem,
+                                Type = tblTinTuc.Type,  
                             };
 
                 if (searchDto != null)
@@ -123,6 +125,10 @@ namespace DoAn.Service.TinTucService
                     if (searchDto.DanhMucFilter != null)
                     {
                         query = query.Where(record => record.DanhMuc.Trim().ToLower().Contains(searchDto.DanhMucFilter.Trim().ToLower()));
+                    }
+                    if (searchDto.TypeFilter != null)
+                    {
+                        query = query.Where(record => record.Type.Trim().ToLower().Contains(searchDto.TypeFilter.Trim().ToLower()));
                     }
                 }
                 var result = PagedList<TinTucDto>.Create(query, searchDto);
@@ -167,6 +173,7 @@ namespace DoAn.Service.TinTucService
                     DataTinTuc.HinhAnh = tintuc.HinhAnh;
                     DataTinTuc.isNoiBat = tintuc.isNoiBat;
                     DataTinTuc.LuotXem = tintuc.LuotXem;
+                    DataTinTuc.Type = tintuc.Type;
                     _tinTucRepository.Edit(DataTinTuc);
                     return new ResponseWithMessageDto()
                     {

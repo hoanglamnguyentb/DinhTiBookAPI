@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using DoAn.Service.Dtos.OrderDto;
 using DoAn.Domain.Entities;
 using DoAnBackEnd.Model.OrderVM;
+using DoAn.Service.Common;
 
 namespace DoAnBackEnd.Controllers
 {
@@ -179,6 +180,20 @@ namespace DoAnBackEnd.Controllers
                     Status = StatusConstant.ERROR,
                     Message = ex.Message
                 });
+            }
+        }
+        [HttpGet("GetByUserId")]
+        public async Task<IActionResult> GetDataByUserId(Guid id)
+        {
+            try
+            {
+                var order = _orderService.GetDataByUserId(id);
+                
+                return StatusCode(StatusCodes.Status200OK, order);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto { Status = StatusConstant.ERROR, Message = ex.Message });
             }
         }
     }

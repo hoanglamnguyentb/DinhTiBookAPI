@@ -12,6 +12,7 @@ namespace DoAn.Service.Dtos.SanPhamDto
         public string? TenSanPhamFilter { get; set; }
         public string? DanhMucFilter { get; set; }
         public string? NhomDoTuoiFilter { get; set; }
-        
+        public bool isNoiBatFilter { get; set; }
+        public bool isKhuyenDocFilter { get; set; }
     }
 }

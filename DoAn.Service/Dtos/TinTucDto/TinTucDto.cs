@@ -17,6 +17,6 @@ namespace DoAn.Service.Dtos.TinTucDto
         public bool isNoiBat { get; set; }
         public DateTime? NgayTao { get; set; }
         public int LuotXem { get; set; }
-
+        public string? Type {   get; set; }
     }
 }

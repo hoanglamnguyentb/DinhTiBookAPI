@@ -668,6 +668,9 @@ namespace DoAn.Domain.Migrations
                     b.Property<double>("Size")
                         .HasColumnType("float");
 
+                    b.Property<string>("TenBanner")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
@@ -747,16 +750,17 @@ namespace DoAn.Domain.Migrations
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SoLuongDaBan")
+                        .HasColumnType("int");
+
                     b.Property<int>("SoLuongTon")
                         .HasColumnType("int");
 
                     b.Property<string>("TenSach")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenTacGia")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(256)
@@ -875,6 +879,9 @@ namespace DoAn.Domain.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TieuDe")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedBy")

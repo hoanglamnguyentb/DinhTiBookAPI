@@ -17,5 +17,6 @@ namespace DoAn.Domain.Entities
         public Guid? ParentId { get; set; }
         public double Size { get; set; }
         public string? Type { get; set; }
+        public string? TenBanner { get; set; }
     }
 }

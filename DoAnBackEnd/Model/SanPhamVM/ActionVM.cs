@@ -5,9 +5,7 @@ namespace DoAnBackEnd.Model.SanPhamVM
 {
     public class ActionVM 
     {
-        [StringLength(50)]
         public string? TenSach { get; set; }
-        [StringLength(50)]
         public string? TenTacGia { get; set; }
         public string? IdNhaXuatBan { get; set; }
         public string? NamXuatBan { get; set; }
@@ -20,5 +18,6 @@ namespace DoAnBackEnd.Model.SanPhamVM
         public int GiamGia { get; set; }
         public bool SachKhuyenDoc { get; set; }
         public int LuotXem {  get; set; }
+        public int SoLuongDaBan { get; set; }
     }
 }

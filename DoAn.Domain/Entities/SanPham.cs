@@ -12,9 +12,9 @@ namespace DoAn.Domain.Entities
     [Table("SanPham")]
     public class SanPham : AuditableEntity
     {
-        [StringLength(50)]
+ 
         public string? TenSach {  get; set; }
-        [StringLength(50)]
+ 
         public string? TenTacGia { get; set; }
         public string? IdNhaXuatBan { get; set; }
         public string? NamXuatBan { get; set; }
@@ -28,6 +28,7 @@ namespace DoAn.Domain.Entities
         public bool SachKhuyenDoc { get; set; }
         public int LuotXem { get; set; }
         public string? Slug { get; set; }
+        public int SoLuongDaBan { get; set; }
 
     }
 }

@@ -10,5 +10,6 @@ namespace DoAn.Service.Dtos.TTSlideDto
     public class TTSlideSearchDto : SearchBase
     {
         public string? TenFilter { get; set; }
+        public string? TypeFilter { get; set; }
     }
 }

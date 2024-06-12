@@ -107,6 +107,15 @@ namespace DoAn.Service.SanPhamService
             {
                 var data = from tblSanPham in _sanphamRepository.GetQueryable()
                            where tblSanPham.Id == id
+                           join tblNXB in _nhaXuatBanRepository.GetQueryable()
+                            on tblSanPham.IdNhaXuatBan equals tblNXB.MaNXB into jSanPham
+                           from nxb in jSanPham.DefaultIfEmpty()
+                           join tblDanhMuc in _danhMucRepository.GetQueryable()
+                           on tblSanPham.IdDanhMuc equals tblDanhMuc.MaCategory into jdanhmucCategory
+                           from danhmuc in jdanhmucCategory.DefaultIfEmpty()
+                           join tblNhomDoTuoi in _nhomDoTuoiRepository.GetQueryable()
+                           on tblSanPham.IdNhomDoTuoi equals tblNhomDoTuoi.MaNhomDoTuoi into jDoTuoi
+                           from dotuoi in jDoTuoi.DefaultIfEmpty()
                            select new SanPhamDto
                            {
                                Id = tblSanPham.Id,
@@ -123,6 +132,11 @@ namespace DoAn.Service.SanPhamService
                                GiamGia = tblSanPham.GiamGia,
                                SachKhuyenDoc = tblSanPham.SachKhuyenDoc,
                                LuotXem = tblSanPham.LuotXem,
+                               TenDanhMuc = danhmuc.CategoryName,
+                               TenNhomDoTuoi = dotuoi.TenNhom,
+                               Slug = tblSanPham.Slug,
+                               SoLuongDaBan = tblSanPham.SoLuongDaBan,
+                               TenNXB = nxb.TenNXB
                            };
                 return new ResponseWithDataDto<SanPhamDto>()
                 {
@@ -182,6 +196,8 @@ namespace DoAn.Service.SanPhamService
                                 TenNhomDoTuoi = dotuoi.TenNhom,
                                 LuotXem = tblSanPham.LuotXem,
                                 Slug = tblSanPham.Slug,
+                                
+                                SoLuongDaBan = tblSanPham.SoLuongDaBan,
                             };
 
                 if (searchDto != null)
@@ -198,6 +214,15 @@ namespace DoAn.Service.SanPhamService
                     {
                         query = query.Where(record => record.IdDanhMuc.Trim().ToLower().Contains(searchDto.DanhMucFilter.Trim().ToLower()));
                     }
+                    if (searchDto.isNoiBatFilter == true)
+                    {
+                        query = query.Where(record => record.NoiBat);
+                    }
+                    if (searchDto.isKhuyenDocFilter == true)
+                    {
+                        query = query.Where(record => record.SachKhuyenDoc);
+                    }
+
                 }
                 var result = PagedList<SanPhamDto>.Create(query, searchDto);
                 return new ResponseWithDataDto<PagedList<SanPhamDto>>()
@@ -253,6 +278,7 @@ namespace DoAn.Service.SanPhamService
                                 TenNhomDoTuoi = dotuoi.TenNhom,
                                 LuotXem = tblSanPham.LuotXem,
                                 Slug = tblSanPham.Slug,
+                                SoLuongDaBan = tblSanPham.SoLuongDaBan
                             };
 
                 if (searchDto != null)
@@ -371,6 +397,97 @@ namespace DoAn.Service.SanPhamService
                     Message = ex.Message,
                     Status = "Error"
                 };
+            }
+        }
+        public ResponseWithMessageDto TruSoLuongDaMua(Guid id, int SoLuong)
+        {
+            var sanPham = _sanphamRepository.GetById(id);
+            if (sanPham != null)
+            {
+                if (sanPham.SoLuongTon >= SoLuong)
+                {
+                    sanPham.SoLuongTon -= SoLuong;
+                    sanPham.SoLuongDaBan += SoLuong;
+                    _sanphamRepository.Edit(sanPham);
+                    return new ResponseWithMessageDto()
+                    {
+                        Message = "Cập nhật số lượng thành công",
+                        Status = StatusConstant.SUCCESS,
+                    };
+                }
+                else
+                {
+                    return new ResponseWithMessageDto()
+                    {
+                        Message = "Lỗi",
+                        Status = "Error"
+                    };
+                }
+            }
+            else
+            {
+                return new ResponseWithMessageDto()
+                {
+                    Message = "Không tìm thấy sản phẩm",
+                    Status = StatusConstant.ERROR,
+                };
+            }
+        }
+
+        public SanPham FindBySlug(string Slug)
+        {
+            try
+            {
+                var data = from tblSanPham in _sanphamRepository.GetQueryable()
+                           where tblSanPham.Slug == Slug
+                           join tblNXB in _nhaXuatBanRepository.GetQueryable()
+                            on tblSanPham.IdNhaXuatBan equals tblNXB.MaNXB into jSanPham
+                           from nxb in jSanPham.DefaultIfEmpty()
+                           join tblDanhMuc in _danhMucRepository.GetQueryable()
+                           on tblSanPham.IdDanhMuc equals tblDanhMuc.MaCategory into jdanhmucCategory
+                           from danhmuc in jdanhmucCategory.DefaultIfEmpty()
+                           join tblNhomDoTuoi in _nhomDoTuoiRepository.GetQueryable()
+                           on tblSanPham.IdNhomDoTuoi equals tblNhomDoTuoi.MaNhomDoTuoi into jDoTuoi
+                           from dotuoi in jDoTuoi.DefaultIfEmpty()
+                           select new SanPhamDto
+                           {
+                               Id = tblSanPham.Id,
+                               TenSach = tblSanPham.TenSach,
+                               TenTacGia = tblSanPham.TenTacGia,
+                               IdNhaXuatBan = tblSanPham.IdNhaXuatBan,
+                               NamXuatBan = tblSanPham.NamXuatBan,
+                               IdDanhMuc = tblSanPham.IdDanhMuc,
+                               GiaTien = tblSanPham.GiaTien,
+                               SoLuongTon = tblSanPham.SoLuongTon,
+                               MoTaSach = tblSanPham.MoTaSach,
+                               IdNhomDoTuoi = tblSanPham.IdNhomDoTuoi,
+                               NoiBat = tblSanPham.NoiBat,
+                               GiamGia = tblSanPham.GiamGia,
+                               SachKhuyenDoc = tblSanPham.SachKhuyenDoc,
+                               LuotXem = tblSanPham.LuotXem,
+                               TenDanhMuc = danhmuc.CategoryName,
+                               TenNhomDoTuoi = dotuoi.TenNhom,
+                               Slug = tblSanPham.Slug,
+                               TenNXB = nxb.TenNXB,
+                               SoLuongDaBan = tblSanPham.SoLuongDaBan
+                           };
+                /*return new ResponseWithDataDto<SanPhamDto>()
+                {
+                    Data = data.FirstOrDefault(),
+                    Status = StatusConstant.SUCCESS,
+                    Message = "Lấy sản phẩm thành công"
+                };*/
+                return data.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                /*return new ResponseWithDataDto<SanPhamDto>()
+                {
+                    Data = null,
+                    Status = StatusConstant.ERROR,
+                    Message = ex.Message
+                };*/
+                return null;
             }
         }
     }

@@ -20,5 +20,6 @@ namespace DoAn.Service.OrderDetailService
         ResponseWithMessageDto Delete(Guid id);
         ResponseWithMessageDto Update(Guid id, OrderDetailDto orderDetail);
         ResponseWithDataDto<OrderDetailDto> FindById(Guid id);
+        ResponseWithDataDto<List<OrderDetailDto>> GetByOrderId(Guid id);
     }
 }

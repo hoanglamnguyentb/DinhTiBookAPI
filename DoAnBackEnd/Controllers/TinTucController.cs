@@ -33,7 +33,7 @@ namespace DoAnBackEnd.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetDataByPage([FromQuery] TinTucSearchDto serach)
-        {
+        { 
             try
             {
                 var tintuc = _tinTucService.GetDataByPage(serach);
@@ -71,6 +71,7 @@ namespace DoAnBackEnd.Controllers
                     NoiDung = tintuc.NoiDung,
                     isNoiBat = tintuc.isNoiBat,
                     LuotXem = tintuc.LuotXem,
+                    Type = tintuc.Type,
                 };
                 await _tinTucService.Create(d);
                 return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<TinTuc>()
@@ -128,6 +129,7 @@ namespace DoAnBackEnd.Controllers
                         rs.NoiDung = action.NoiDung;
                         rs.isNoiBat = action.isNoiBat;
                         rs.LuotXem = action.LuotXem;
+                        rs.Type = action.Type;
 
                         await _tinTucService.Update(rs);
                         return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<TinTuc>
